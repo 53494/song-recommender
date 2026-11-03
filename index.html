@@ -87,7 +87,7 @@
 </style>
 </head>
 <body>
-  <iframe id="app" src="song-recommender.html" title="曲风点唱机"></iframe>
+  <iframe id="app" src="about:blank" title="曲风点唱机"></iframe>
 
   <button id="musicToggle" class="music-toggle" title="音乐开关" aria-label="音乐开关">🎵</button>
 
@@ -113,6 +113,8 @@
    因此页面加载先尝试播放，失败则由「进入」按钮兜底启动。
    ============================================================ */
 (function(){
+  // 主页面 URL 带时间戳，绕开 CDN / 浏览器缓存（Pages 响应为 Cache-Control: max-age=600）
+  document.getElementById("app").src = "song-recommender.html?v=" + Date.now();
   var BAR = 3.4;
   var CHORDS = [
     {root:48, notes:[60,64,67,71]},  // Cmaj7
