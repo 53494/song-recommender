@@ -95,21 +95,29 @@
   .btn:active{transform:translateY(0) scale(.98)}
   .stat{margin-left:auto;font-size:11.5px;color:var(--ink-faint);white-space:nowrap}
 
-  /* 指引 / 说明 */
-  .guide{
-    margin-top:16px;background:rgba(255,255,255,.72);border:1px dashed #d9e8dd;
-    border-radius:20px;padding:16px 20px;box-shadow:var(--shadow-sm);
+  /* 右上角工具区 + 指引浮层（不占页面流，结果区紧跟控制面板） */
+  .top-tools{display:flex;align-items:center;gap:9px;position:relative}
+  .guide-btn{
+    border:1px solid #fff;background:rgba(255,255,255,.8);color:var(--mint-deep);
+    padding:9px 14px;border-radius:999px;font-size:12.5px;font-weight:700;font-family:inherit;
+    cursor:pointer;box-shadow:var(--shadow-sm);backdrop-filter:blur(6px);
+    transition:.18s ease;white-space:nowrap;
   }
-  .guide summary{
-    cursor:pointer;list-style:none;font-size:13px;font-weight:700;color:var(--mint-deep);
-    display:flex;align-items:center;gap:8px;user-select:none;
+  .guide-btn:hover{transform:translateY(-2px);background:#fff}
+  .guide-btn.on{background:var(--mint-soft);border-color:var(--mint)}
+  .guide-pop{
+    display:none;position:absolute;right:0;top:calc(100% + 12px);z-index:50;
+    width:min(430px,calc(100vw - 32px));max-height:min(70vh,560px);overflow:auto;
+    background:#fff;border:1px solid #fff;border-radius:20px;padding:18px 20px;
+    box-shadow:0 18px 44px rgba(90,130,105,.20);
+    animation:popdown .22s ease both;
   }
-  .guide summary::-webkit-details-marker{display:none}
-  .guide summary::after{content:"▾";margin-left:auto;font-size:11px;transition:.2s}
-  .guide[open] summary::after{transform:rotate(180deg)}
+  .guide-pop.open{display:block}
+  @keyframes popdown{from{opacity:0;transform:translateY(-8px) scale(.98)}to{opacity:1;transform:none}}
+  .guide-pop-title{font-size:13px;font-weight:700;color:var(--mint-deep);padding-bottom:11px;border-bottom:1px solid var(--line)}
   .guide-body{margin-top:14px;display:grid;gap:12px}
-  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
-  .step{background:#fff;border-radius:14px;padding:12px 14px;border:1px solid var(--line);font-size:12px;line-height:1.65;color:var(--ink-soft)}
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  .step{background:#fbfdfb;border-radius:14px;padding:12px 14px;border:1px solid var(--line);font-size:12px;line-height:1.65;color:var(--ink-soft)}
   .step b{display:block;color:var(--ink);font-size:12.5px;margin-bottom:3px}
   .step .n{color:var(--mint-deep);font-weight:800;margin-right:5px}
   .note{font-size:11.5px;line-height:1.75;color:var(--ink-faint);border-top:1px dashed var(--line);padding-top:11px}
@@ -152,6 +160,7 @@
     .panel{padding:20px 18px}.stat{margin-left:0;width:100%;margin-top:8px}
     .btn{flex:1;text-align:center;padding:13px 12px}
     header{gap:12px}
+    .top-tools{width:100%;justify-content:flex-end}
   }
 </style>
 </head>
@@ -167,20 +176,23 @@
         <div class="sub" data-i18n="appSubtitle">挑个年代，让音乐随机撞进耳朵里 🌿</div>
       </div>
     </div>
-    <div class="lang-box">
-      <span>🌐</span>
-      <label for="langSel" data-i18n="langLabel">语言</label>
-      <select id="langSel">
-        <option value="zh-CN">简体中文</option>
-        <option value="zh-TW">繁體中文</option>
-        <option value="en">English</option>
-      </select>
+    <div class="top-tools">
+      <button id="guideBtn" class="guide-btn" type="button" aria-expanded="false" aria-controls="guidePop" data-i18n="guideBtn">💡 指引 / 说明</button>
+      <div class="lang-box">
+        <span>🌐</span>
+        <label for="langSel" data-i18n="langLabel">语言</label>
+        <select id="langSel">
+          <option value="zh-CN">简体中文</option>
+          <option value="zh-TW">繁體中文</option>
+          <option value="en">English</option>
+        </select>
+      </div>
     </div>
   </header>
 
   <div class="panel">
     <div class="row">
-      <div class="row-head"><span class="lb" data-i18n="genreLabel">① 选曲风 🎶</span><span class="hint" data-i18n="genreHint">可多选，默认全选</span></div>
+      <div class="row-head"><span class="lb" data-i18n="genreLabel">① 选曲风 🎶</span><span class="hint" data-i18n="genreHint">可多选，默认不选，至少选 1 个</span></div>
       <div class="chips" id="genreChips"></div>
     </div>
     <div class="row">
@@ -200,8 +212,8 @@
     </div>
   </div>
 
-  <details class="guide" id="guide" open>
-    <summary>💡 <span data-i18n="guideTitle">使用指引 & 数据说明</span></summary>
+  <div id="guidePop" class="guide-pop">
+    <h3 class="guide-pop-title" data-i18n="guideTitle">使用指引 & 数据说明</h3>
     <div class="guide-body">
       <div class="steps">
         <div class="step"><b><span class="n">01</span><span data-i18n="s1t">挑曲风</span></b><span data-i18n="s1d">点选 R&B / Jazz / Hiphop / Pop，可多选，也可以只留一个。</span></div>
@@ -213,7 +225,7 @@
         <span data-i18n="noteBody">页面内置 120 首曲目（4 曲风 × 3 年代 × 10 首）的静态快照，整理自网易云音乐曲风歌单，中英文混合、覆盖 1990–2020。静态网页无法直连网易云接口（跨域 + 反爬 + 登录态），因此不是实时爬取；点卡片底部的「在网易云试听」会跳转到对应搜索结果。想换成实时抓取的数据，运行配套脚本 fetch-netease.js 生成 songs-data.js 后，取消 HTML 中那行注释即可覆盖内置歌单。歌曲版权归原权利人所有，本页仅作检索与推荐演示。</span>
       </div>
     </div>
-  </details>
+  </div>
 
   <div class="result-head" id="resultHead" hidden>
     <h2 id="resultTitle"></h2>
@@ -382,7 +394,7 @@ const I18N = {
     g_rnb:"R&B · 节奏布鲁斯",g_jazz:"爵士 Jazz",g_hiphop:"嘻哈 Hiphop",g_pop:"流行 Pop",
     e_all:"不限年代 🌈",e_2010:"2010–2020",e_2000:"2000–2010",e_1990:"1990–2000",
     countUnit:"首",stat:"📚 4 种曲风 · 3 个年代 · 共 {n} 首",
-    guideTitle:"使用指引 & 数据说明",
+    guideBtn:"💡 指引 / 说明",guideTitle:"使用指引 & 数据说明",
     s1t:"挑曲风",s1d:"默认一个都不选。点选 R&B / Jazz / Hiphop / Pop，可多选，也可以只留一个。",
     s2t:"选年代和数量",s2d:"年代支持「不限」+ 三个十年段；数量可选 2 / 3 / 5 首。",
     s3t:"开始推荐",s3d:"点「开始推荐」随机抽歌，再点一次就换一批；「清除选项」恢复默认并清空结果。",
@@ -401,7 +413,7 @@ const I18N = {
     g_rnb:"R&B · 節奏藍調",g_jazz:"爵士 Jazz",g_hiphop:"嘻哈 Hiphop",g_pop:"流行 Pop",
     e_all:"不限年代 🌈",e_2010:"2010–2020",e_2000:"2000–2010",e_1990:"1990–2000",
     countUnit:"首",stat:"📚 4 種曲風 · 3 個年代 · 共 {n} 首",
-    guideTitle:"使用指引 & 資料說明",
+    guideBtn:"💡 指引 / 說明",guideTitle:"使用指引 & 資料說明",
     s1t:"挑曲風",s1d:"預設一個都不選。點選 R&B / Jazz / Hiphop / Pop，可多選，也可以只留一個。",
     s2t:"選年代和數量",s2d:"年代支援「不限」+ 三個十年段；數量可選 2 / 3 / 5 首。",
     s3t:"開始推薦",s3d:"點「開始推薦」隨機抽歌，再點一次就換一批；「清除選項」回復預設並清空結果。",
@@ -420,7 +432,7 @@ const I18N = {
     g_rnb:"R&B",g_jazz:"Jazz",g_hiphop:"Hiphop",g_pop:"Pop",
     e_all:"Any decade 🌈",e_2010:"2010–2020",e_2000:"2000–2010",e_1990:"1990–2000",
     countUnit:"songs",stat:"📚 4 genres · 3 decades · {n} tracks",
-    guideTitle:"How to use & data notes",
+    guideBtn:"💡 Guide & notes",guideTitle:"How to use & data notes",
     s1t:"Pick genres",s1d:"Nothing is selected by default. Toggle R&B / Jazz / Hiphop / Pop. Pick one or several.",
     s2t:"Pick decade & count",s2d:"Choose Any or one of three decades; count can be 2 / 3 / 5.",
     s3t:"Hit recommend",s3d:"Click Recommend to draw randomly; click again for a new batch. Clear resets everything.",
@@ -556,6 +568,20 @@ document.getElementById("btnClear").addEventListener("click",clearAll);
 document.getElementById("langSel").addEventListener("change",e=>{
   state.lang=e.target.value;renderControls();renderResults();
 });
+
+/* 指引浮层：内容挂到右上角工具区，点击按钮展开；默认隐藏，不占页面流 */
+const guideBtn=document.getElementById("guideBtn");
+const guidePop=document.getElementById("guidePop");
+document.querySelector(".top-tools").appendChild(guidePop);
+function setGuide(open){
+  guidePop.classList.toggle("open",open);
+  guideBtn.classList.toggle("on",open);
+  guideBtn.setAttribute("aria-expanded",open?"true":"false");
+}
+guideBtn.addEventListener("click",e=>{ e.stopPropagation(); setGuide(!guidePop.classList.contains("open")); });
+guidePop.addEventListener("click",e=>e.stopPropagation());
+document.addEventListener("click",()=>setGuide(false));
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") setGuide(false); });
 
 renderControls();renderResults();
 </script>
