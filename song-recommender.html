@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🎧 曲风点唱机 · Music Picker</title>
+<script>
+  /* 线上直接打开本页时先回到封面（iframe 内不跳转）；本地 file:// 单文件打开仍可独立使用 */
+  if (window.top === window.self && /^https?:$/.test(location.protocol)) location.replace("index.html");
+</script>
 <style>
   :root{
     --bg1:#f4fbf5; --bg2:#fff7f2; --bg3:#f3f8ff;
